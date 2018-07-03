@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="data"
+            type="ru.bogdanov.moneychecker.model.items.DayItem"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{v->data.dateClicked(context)}"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/textViewDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text='@{"Дата "+data.date}'
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textViewKredit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{String.format("%.0f",data.kredit)}'
+            android:textColor="@android:color/holo_red_light"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textViewMovement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text='@{String.format("%.0f",data.balance)}'
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/textViewKredit"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+</layout>
