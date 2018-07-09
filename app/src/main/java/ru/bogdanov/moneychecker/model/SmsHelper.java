@@ -42,7 +42,7 @@ public class SmsHelper {
         return sms;
     }
 
-    private HashMap<String, DayItem> parseSms(Context context){
+    public HashMap<String, DayItem> parseSms(Context context){
         HashMap<String, DayItem> map=new HashMap<>();
 
         for (String s:getSmsFromProvider(context)){
@@ -73,35 +73,21 @@ public class SmsHelper {
             float balance=Float.parseFloat(bal);
 
             SmsItem smsItem=new SmsItem(date,time,balance,movement, cardId, destination);
-           if ( map.containsKey(smsItem.getDate()) ) map.get(smsItem.getDate()).addSms(smsItem);
+           if ( map.containsKey(smsItem.getDate()) ) {
+               map.get(smsItem.getDate()).addSms(smsItem);
+               map.get(smsItem.getDate()).fillInfo();
+           }
            else {
                DayItem dayItem=new DayItem(smsItem.getDate());
                dayItem.addSms(smsItem);
                map.put(smsItem.getDate(), dayItem);
+               map.get(smsItem.getDate()).fillInfo();
            }
         }
+
+
+
         return map;
     }
 
-    public ArrayList<DayItem> getSms(Context context, int daysCount){
-        HashMap<String, DayItem> map=parseSms(context);
-       // Log.e(TAG, map.keySet().toString());
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd.MM.yy");
-        Calendar calendar=Calendar.getInstance();
-        ArrayList<DayItem> list=new ArrayList<>();
-
-        while (daysCount>0)
-        {
-          //  Log.e(TAG, simpleDateFormat.format(calendar.getTime()));
-            if (map.containsKey(simpleDateFormat.format(calendar.getTime()))) {
-                DayItem dayItem=map.get(simpleDateFormat.format(calendar.getTime()));
-                dayItem.fillInfo();
-                list.add(dayItem);
-            }
-
-            calendar.add(Calendar.DAY_OF_YEAR, -1);
-            daysCount--;
-        }
-        return list;
-    }
 }

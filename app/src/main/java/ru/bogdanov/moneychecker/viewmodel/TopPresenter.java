@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import ru.bogdanov.moneychecker.BR;
 import ru.bogdanov.moneychecker.model.SmsHelper;
@@ -70,6 +71,7 @@ public class TopPresenter extends BaseObservable {
     }
 
     public void setDateStart(String dateStart) {
+        ;
         this.dateStart = dateStart;
         notifyPropertyChanged(BR.dateStart);
     }
@@ -85,7 +87,7 @@ public class TopPresenter extends BaseObservable {
     public void getFromShPref(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
         setDay(sharedPref.getFloat("day", 1000));
-        setDateStart(sharedPref.getString("date", "01.07.2018"));
+        setDateStart(sharedPref.getString("date", "01.07.18"));
         setMonth(day * 30);
         this.context=context;
         new AsyncSms().execute();
@@ -125,30 +127,42 @@ public class TopPresenter extends BaseObservable {
     }
 
     class AsyncSms extends AsyncTask {
+        HashMap< String,DayItem> map;
         ArrayList<DayItem> list;
         float summ=0;
 
         @Override
         protected Object doInBackground(Object[] objects) {
             SmsHelper smsHelper = new SmsHelper();
-            list = smsHelper.getSms(context, 100);
+            map = smsHelper.parseSms(context);
 
             Calendar calendar=Calendar.getInstance();
             SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd.MM.yy");
-            int count=0;
+            Log.e(TAG, "datestart "+dateStart);
             while (true){
                 Log.e(TAG, simpleDateFormat.format(calendar.getTime()));
-                count++;
-                if (count>200) break;
-                if (simpleDateFormat.format(calendar.getTime()).equals(dateStart)) break;
+                String key=simpleDateFormat.format(calendar.getTime());
+                if (map.containsKey(key)) summ += map.get(key).getSumm(day);
+                else summ+=day;
+
+                Log.e(TAG, "summ "+key+" "+summ);
+                if (key.equals(dateStart)) break;
+
                 calendar.add(Calendar.DAY_OF_MONTH,-1);
             }
 
-            for (int i=0; i<count; i++) {
-                summ += list.get(i).getSumm(day);
-                Log.e(TAG, summ+"");
+            Log.e(TAG, "list size "+map.size());
+
+
+            list=new ArrayList<>();
+            calendar=Calendar.getInstance();
+            int count=100;
+            for (int i=0;i<count;i++){
+                String key=simpleDateFormat.format(calendar.getTime());
+                if (map.containsKey(key)) list.add(map.get(key));
+                calendar.add(Calendar.DAY_OF_MONTH,-1);
             }
-            Log.e(TAG, "list size "+list.size());
+
             return null;
         }
 
